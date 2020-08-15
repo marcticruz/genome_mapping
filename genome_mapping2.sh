@@ -21,7 +21,7 @@ module load GATK/3.8-0-Java-1.8.0_141  # Load GATK program
 
 module load VCFtools/0.1.14-intel-2016a # Load VCFtools program
 
-Java/1.7.0_21 # Load java program  
+module load Java/11.0.2 # Load java program  
 
 samtools faidx /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta # Execute samtools faidx to index the reference genome
 
@@ -54,7 +54,7 @@ do
 
 	java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar BuildBamIndex INPUT=./${name}_final.bam # Create indexes for the bam file
      
-    java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar CollectMultipleMetrics INPUT=${name}_final.bam OUTPUT=${name}_final.bam_metrics.txt PROGRAM=CollectAlignmentSummaryMetrics PROGRAM=CollectInsertSizeMetrics PROGRAM=QualityScoreDistribution # Execute picard.jar CollectMultipleMetrics to output information about the reading process 
+    	java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar CollectMultipleMetrics INPUT=${name}_final.bam OUTPUT=${name}_final.bam_metrics.txt PROGRAM=CollectAlignmentSummaryMetrics PROGRAM=CollectInsertSizeMetrics PROGRAM=QualityScoreDistribution # Execute picard.jar CollectMultipleMetrics to output information about the reading process 
 
 done
 
