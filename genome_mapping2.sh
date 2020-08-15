@@ -60,8 +60,8 @@ done
 
 cat *_final.bam > bank_vole_bam_files.bam  # Redirect the content of all the bam files to a single bam file
 
-java -Xmx45g -jar GenomeAnalysisTK.jar  -T HaplotypeCaller -nct 6  -R /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta -I ./bank_vole_bam_files.bam -ERC GVCF -o ./bank_vole_raw.g.vcf # Execute GenomeAnalysisTK.jar -T HaplotypeCaller to identify SNP
+java -Xmx45g -jar $EBROOTGATK/GenomeAnalysisTK.jar  -T HaplotypeCaller -nct 6  -R /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta -I ./bank_vole_bam_files.bam -ERC GVCF -o ./bank_vole_raw.g.vcf # Execute GenomeAnalysisTK.jar -T HaplotypeCaller to identify SNP
  
-java -Xmx45g -jar GenomeAnalysisTK.jar -T GenotypeGVCFs -R /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta -V ./bank_vole_raw.g.vcf -o ./bank_vole.vcf # Execute GenomeAnalysisTK.jar -T GenotypeGVCFs to genotype the samples
+java -Xmx45g -jar $EBROOTGATK/GenomeAnalysisTK.jar -T GenotypeGVCFs -R /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta -V ./bank_vole_raw.g.vcf -o ./bank_vole.vcf # Execute GenomeAnalysisTK.jar -T GenotypeGVCFs to genotype the samples
 
 vcftools --vcf ./bank_vole.vcf --min-alleles 2 --max-alleles 2 --remove-indels --max-missing 1 --maf 0.15 --max-maf 0.83 --min-meanDP 7 --max-meanDP 25 --thin 2000 --recode -c  > ./bank_vole_snps.vcf # Execute VCFtools to filter out low-quality and uninformative SNP
