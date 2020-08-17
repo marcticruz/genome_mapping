@@ -1,33 +1,33 @@
 #!/bin/sh
 #SBATCH --time=45:00:00
-#SBATCH --mem=20G
+#SBATCH --mem=60G
 #SBATCH --job-name=genome_mapping
 #SBATCH --output=/scratch/mdacruz/bank_vole_raw_genome/1GB_100GB_bank_vole_files/genome_mapping_reduced.out
 #SBATCH --error=/scratch/mdacruz/bank_vole_raw_genome/1GB_100GB_bank_vole_files/genome_mapping_reduced.err
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=marcos.cruz@ou.edu
 #SBATCH --ntasks=1 
-#SBATCH --partition=normal
+#SBATCH --partition=all
  
 ## genome mapping workflow
 
-module load BBMap/38.36-intel-2016a # Load BBMap program
+module load BBMap/38.36-intel-2016a # Load BBMap 
 
-module load BWA/0.7.13-intel-2016a  # Load BWA program
+module load BWA/0.7.13-intel-2016a  # Load BWA 
 
-module load SAMtools/1.9-foss-2018b # Load SAMtools program
+module load SAMtools/1.9-foss-2018b # Load SAMtools
 
-module load GATK/3.8-0-Java-1.8.0_141  # Load GATK program 
+module load GATK/3.8-0-Java-1.8.0_141  # Load GATK 
 
-module load VCFtools/0.1.14-intel-2016a # Load VCFtools program
+module load VCFtools/0.1.14-intel-2016a # Load VCFtools 
 
-module load Java/11.0.2 # Load java program  
+module load Java/11.0.2 # Load java program
 
 samtools faidx /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta # Execute samtools faidx to index the reference genome
 
 bwa index /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta # Execute bwa index to index the reference genome   
 
-java -jar picard.jar CreateSequenceDictionary R=/scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta O=/scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.dict # Execute picard.jar CreateSequenceDictionary to create a sequence dictionary for the reference sequences
+java -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar CreateSequenceDictionary R=/scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta O=/scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.dict # Execute picard.jar CreateSequenceDictionary to create a sequence dictionary for the reference sequences
 
 cd /scratch/mdacruz/bank_vole_raw_genome/1GB_100GB_bank_vole_files # Define directory
 
@@ -55,13 +55,23 @@ do
 	java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar BuildBamIndex INPUT=./${name}_final.bam # Create indexes for the bam file
      
     	java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar CollectMultipleMetrics INPUT=${name}_final.bam OUTPUT=${name}_final.bam_metrics.txt PROGRAM=CollectAlignmentSummaryMetrics PROGRAM=CollectInsertSizeMetrics PROGRAM=QualityScoreDistribution # Execute picard.jar CollectMultipleMetrics to output information about the reading process 
-
+	mv *_final.bam ./final_bam_files/ # delete files
+	rm *.bam # delete files
+	rm *.sam # delete files
 done
 
-cat *_final.bam > bank_vole_bam_files.bam  # Redirect the content of all the bam files to a single bam file
+module load Java/1.8.0_141 # Load Java
 
-java -Xmx45g -jar $EBROOTGATK/GenomeAnalysisTK.jar  -T HaplotypeCaller -nct 6  -R /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta -I ./bank_vole_bam_files.bam -ERC GVCF -o ./bank_vole_raw.g.vcf # Execute GenomeAnalysisTK.jar -T HaplotypeCaller to identify SNP
+cd ./final_bam_files  # Change directory
+
+cat *_final.bam > bank_vole_bam_files.bam  # Redirect the content of all the bam files to a single bam file  
+
+rm *_final.bam # delete files
+
+java -Xmx60g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar BuildBamIndex INPUT=./bank_vole_bam_files.bam # Create indexes for the bam file
+
+java -Xmx60g -jar /scratch/mdacruz/bank_vole_raw_genome/GenomeAnalysisTK.jar  -T HaplotypeCaller -nct 6  -R /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta -I ./bank_vole_bam_files.bam -ERC GVCF -o ./bank_vole_raw.g.vcf # Execute GenomeAnalysisTK.jar -T HaplotypeCaller to identify SNP
  
-java -Xmx45g -jar $EBROOTGATK/GenomeAnalysisTK.jar -T GenotypeGVCFs -R /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta -V ./bank_vole_raw.g.vcf -o ./bank_vole.vcf # Execute GenomeAnalysisTK.jar -T GenotypeGVCFs to genotype the samples
+java -Xmx60g -jar /scratch/mdacruz/bank_vole_raw_genome/GenomeAnalysisTK.jar -T GenotypeGVCFs -R /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta -V ./bank_vole_raw.g.vcf -o ./bank_vole_genotype.vcf # Execute GenomeAnalysisTK.jar -T GenotypeGVCFs to genotype the samples
 
-vcftools --vcf ./bank_vole.vcf --min-alleles 2 --max-alleles 2 --remove-indels --max-missing 1 --maf 0.15 --max-maf 0.83 --min-meanDP 7 --max-meanDP 25 --thin 2000 --recode -c  > ./bank_vole_snps.vcf # Execute VCFtools to filter out low-quality and uninformative SNP
+vcftools --vcf bank_vole_genotype.vcf --min-alleles 2 --max-alleles 2 --remove-indels --max-missing 1 --maf 0.15 --max-maf 0.83 --min-meanDP 7 --max-meanDP 25 --thin 2000 --recode -c  > bank_vole_snps.vcf # Execute VCFtools to filter out low-quality and uninformative SNP
