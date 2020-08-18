@@ -44,15 +44,15 @@ do
 
 	samtools flagstat ${name}.bam > ${name}_flagstat_out.txt 2> ${name}_flagstat_err.txt # Execute samtools flagstat to count the number of reads that were mapped to the reference genome.
  
-	java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar CleanSam INPUT=./${name}.bam OUTPUT=./${name}_cleaned.bam # Execute picard.jar CleaSam to filter all the reads that were not mapped to the reference
+	java -Xmx60g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar CleanSam INPUT=./${name}.bam OUTPUT=./${name}_cleaned.bam # Execute picard.jar CleaSam to filter all the reads that were not mapped to the reference
  
-	java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar SortSam INPUT=${name}_cleaned.bam OUTPUT=${name}_cleaned_sorted.bam SORT_ORDER=coordinate # Execute SortSam to sort bam files by coordinates of the bam file
+	java -Xmx60g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar SortSam INPUT=${name}_cleaned.bam OUTPUT=${name}_cleaned_sorted.bam SORT_ORDER=coordinate # Execute SortSam to sort bam files by coordinates of the bam file
 
-	java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar AddOrReplaceReadGroups INPUT=${name}_cleaned_sorted.bam OUTPUT=${name}_readgroups_sorted_cleaned.bam RGID=1 RGLB=library1 RGPL=illumina RGPU=unit1 RGSM=${name} # Execute picard.jar AddOrReplaceReadGroups to mark heterozygous sites with a specific tag
+	java -Xmx60g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar AddOrReplaceReadGroups INPUT=${name}_cleaned_sorted.bam OUTPUT=${name}_readgroups_sorted_cleaned.bam RGID=1 RGLB=library1 RGPL=illumina RGPU=unit1 RGSM=${name} # Execute picard.jar AddOrReplaceReadGroups to mark heterozygous sites with a specific tag
 
-	java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar MarkDuplicates REMOVE_DUPLICATES=true MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=100 M=${name}_markdups_metric_file.txt INPUT=${name}_readgroups_sorted_cleaned.bam OUTPUT=${name}_final.bam # Execute picard.jar MarkDuplicates to mark and remove duplicate reads
+	java -Xmx60g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar MarkDuplicates REMOVE_DUPLICATES=true MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=100 M=${name}_markdups_metric_file.txt INPUT=${name}_readgroups_sorted_cleaned.bam OUTPUT=${name}_final.bam # Execute picard.jar MarkDuplicates to mark and remove duplicate reads
 
-	java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar BuildBamIndex INPUT=./${name}_final.bam # Create indexes for the bam file
+	java -Xmx60g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar BuildBamIndex INPUT=./${name}_final.bam # Create indexes for the bam file
      
     	java -Xmx2g -jar /scratch/mdacruz/bank_vole_raw_genome/picard.jar CollectMultipleMetrics INPUT=${name}_final.bam OUTPUT=${name}_final.bam_metrics.txt PROGRAM=CollectAlignmentSummaryMetrics PROGRAM=CollectInsertSizeMetrics PROGRAM=QualityScoreDistribution # Execute picard.jar CollectMultipleMetrics to output information about the reading process 
 	mv *_final.bam ./final_bam_files/ # delete files
