@@ -74,4 +74,4 @@ java -Xmx60g -jar /scratch/mdacruz/bank_vole_raw_genome/GenomeAnalysisTK.jar  -T
  
 java -Xmx60g -jar /scratch/mdacruz/bank_vole_raw_genome/GenomeAnalysisTK.jar -T GenotypeGVCFs -R /scratch/mdacruz/bank_vole_raw_genome/bank_vole_reference/bank_vole_11Jun2018_KbcOz2.fasta -V ./bank_vole_raw.g.vcf -o ./bank_vole_genotype.vcf # Execute GenomeAnalysisTK.jar -T GenotypeGVCFs to genotype the samples
 
-vcftools --vcf bank_vole_genotype.vcf --remove-indels --mac 2 --thin 2000 --recode -c  > bank_vole_snps.vcf # Execute VCFtools to filter out low-quality and uninformative SNP
+vcftools --vcf bank_vole_genotype.vcf --remove-indels --mac 2 --recode -c  > bank_vole_snps.vcf # Execute VCFtools to filter out low-quality and uninformative SNP
