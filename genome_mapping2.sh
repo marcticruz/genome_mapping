@@ -39,15 +39,4 @@ rm *.sam # delete files
 rm *.bam # delete files
 
 done
-
-cd /final_bam_files/ # change directory
-
-samtools merge great_britain_bank_vole.bam *.bam --threads 28 # merge bam files
-
-/usr/bin/bcftools-1.9/bcftools mpileup -f ./bank_vole_11Jun2018_KbcOz2.fasta ./great_britain_bank_vole.bam --output-type b --output ./bank_vole_genotype_likelihoos_compressed.bcf --threads 28 # Estimate l
-ikelihood that a polimorphic site is a snp
-
-/usr/bin/bcftools-1.9/bcftools call bank_vole_genotype_likelihoos_compressed.bcf --output-type b --output ./bank_vole_snps_bcftools_compressed.bcf --threads 28 -m # Call snps
-
-vcftools --bcf bank_vole_snps_bcftools_compressed.bcf --remove-indels --mac 2 --recode -c  > bank_vole_snps_filtered.vcf # Filter out some snps
 ~                                                                                                                                               
