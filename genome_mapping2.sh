@@ -22,7 +22,7 @@ samtools view -bS ./${name}.sam  --threads 8  > ./${name}.bam 2> ${name}_bam_err
 #
 samtools flagstat ${name}.bam --threads 8 > ${name}_flagstat_out.txt 2> ${name}_flagstat_err.txt # Execute samtools flagstat to count the number of reads that were mapped to the reference genome.
 # 
-java -Xmx28g  -jar /work/mdacruz/bank_vole_raw_genome/picard.jar CleanSam INPUT=./${name}.bam OUTPUT=./${name}_cleaned.bam # Execute picard.jar CleaSam to filter all the reads that were not mapped to the reference
+java -Xmx28g  -jar /work/mdacruz/bank_vole_raw_genome/picard.jar CleanSam INPUT=./${name}.bam OUTPUT=./${name}_cleaned.bam # Execute picard.jar CleaSam to mark all the reads that were not mapped to the reference
 # 
 java -Xmx28g -jar /work/mdacruz/bank_vole_raw_genome/picard.jar SortSam INPUT=${name}_cleaned.bam OUTPUT=${name}_cleaned_sorted.bam SORT_ORDER=coordinate # Execute SortSam to sort bam files by coordinates of the bam file
 #
